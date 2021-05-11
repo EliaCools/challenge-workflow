@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Ticket;
+use App\Form\CommentType;
 use App\Form\TicketType;
 use App\Repository\TicketRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,10 +46,25 @@ class TicketController extends AbstractController
     }
 
     #[Route('/{id}', name: 'ticket_show', methods: ['GET'])]
-    public function show(Ticket $ticket): Response
+    public function show(Ticket $ticket, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('ticket_show');
+        }
+
         return $this->render('ticket/show.html.twig', [
             'ticket' => $ticket,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -80,3 +98,6 @@ class TicketController extends AbstractController
         return $this->redirectToRoute('ticket_index');
     }
 }
+
+// 3 templates. Index customer.twig, ...
+// if statements based on user role to render right twig
