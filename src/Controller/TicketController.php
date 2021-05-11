@@ -16,6 +16,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/ticket')]
 class TicketController extends AbstractController
 {
+    private $session;
+    private $userRepository;
+    private $name;
+    private $verified;
+
+
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
     public function index(TicketRepository $ticketRepository): Response
     {

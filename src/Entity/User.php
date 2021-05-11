@@ -95,6 +95,8 @@ class User implements UserInterface
      *
      * @see UserInterface
      */
+
+    //use to show in the website who logged in
     public function getUsername(): string
     {
         return (string) $this->email;
