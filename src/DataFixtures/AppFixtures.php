@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
-    private $passwordEncoder;
+    private UserPasswordEncoderInterface $passwordEncoder;
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
@@ -36,7 +36,7 @@ class AppFixtures extends Fixture
         $user1 = new User();
         $user1->setEmail('eliacools@example.com');
         $user1->setRoles(['ROLE_CUSTOMER']);
-        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password2'));
+        $user1->setPassword($this->passwordEncoder->encodePassword($user1,'new_password2'));
         $user1->setFirstName('Elia');
         $user1->setLastName('Cools');
         $manager->persist($user1);
@@ -44,7 +44,7 @@ class AppFixtures extends Fixture
         $user2 = new User();
         $user2->setEmail('martedeleeuw@hotmail.com');
         $user2->setRoles(['ROLE_FIRST_LINE_AGENT']);
-        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password3'));
+        $user2->setPassword($this->passwordEncoder->encodePassword($user2,'new_password3'));
         $user2->setFirstName('Marte');
         $user2->setLastName('De Leeuw');
         $user2->setNumberClosedTickets(10);
@@ -54,7 +54,7 @@ class AppFixtures extends Fixture
         $user3 = new User();
         $user3->setEmail('jenifer@gmail.com');
         $user3->setRoles(['ROLE_MANAGER']);
-        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password4'));
+        $user3->setPassword($this->passwordEncoder->encodePassword($user3,'new_password4'));
         $user3->setFirstName('Jenifer');
         $user3->setLastName('Bucheli');
         $manager->persist($user3);
