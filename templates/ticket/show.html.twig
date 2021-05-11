@@ -3,6 +3,7 @@
 {% block title %}Ticket{% endblock %}
 
 {% block body %}
+
     <h1>Ticket</h1>
 
     <table class="table">
@@ -37,6 +38,10 @@
             </tr>
         </tbody>
     </table>
+
+    {% if is_granted('ROLE_CUSTOMER') || is_granted('ROLE_AGENT') %}
+        {{ form(form) }}
+    {% endif %}
 
     <a href="{{ path('ticket_index') }}">back to list</a>
 
