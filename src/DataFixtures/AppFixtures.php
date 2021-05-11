@@ -7,9 +7,16 @@ use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
+    private $passwordEncoder;
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     public function load(ObjectManager $manager)
     {
         $status = new Status();
@@ -19,7 +26,7 @@ class AppFixtures extends Fixture
         $user = new User();
         $user->setEmail('spacebar133%d@example.com');
         $user->setRoles(['ROLE_SECOND_LINE_AGENT']);
-        $user->setPassword('chao01232');
+        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password'));
         $user->setFirstName('Julio');
         $user->setLastName('Texeira');
         $user->setNumberClosedTickets(2);
@@ -29,7 +36,7 @@ class AppFixtures extends Fixture
         $user1 = new User();
         $user1->setEmail('eliacools@example.com');
         $user1->setRoles(['ROLE_CUSTOMER']);
-        $user1->setPassword('becode123');
+        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password2'));
         $user1->setFirstName('Elia');
         $user1->setLastName('Cools');
         $manager->persist($user1);
@@ -37,7 +44,7 @@ class AppFixtures extends Fixture
         $user2 = new User();
         $user2->setEmail('martedeleeuw@hotmail.com');
         $user2->setRoles(['ROLE_FIRST_LINE_AGENT']);
-        $user2->setPassword('becode123');
+        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password3'));
         $user2->setFirstName('Marte');
         $user2->setLastName('De Leeuw');
         $user2->setNumberClosedTickets(10);
@@ -47,7 +54,7 @@ class AppFixtures extends Fixture
         $user3 = new User();
         $user3->setEmail('jenifer@gmail.com');
         $user3->setRoles(['ROLE_MANAGER']);
-        $user3->setPassword('becode123');
+        $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password4'));
         $user3->setFirstName('Jenifer');
         $user3->setLastName('Bucheli');
         $manager->persist($user3);
