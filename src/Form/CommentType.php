@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Comment;
+use Cassandra\Type\UserType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -19,7 +20,7 @@ class CommentType extends AbstractType
                 'data' => true
             ])
             ->add('createdBy', HiddenType::class, [
-                'data' => 'John'
+                UserType::class => 'John'
             ])
             ->add('ticket', TicketType::class)
             ->add('Submit', SubmitType::class);
