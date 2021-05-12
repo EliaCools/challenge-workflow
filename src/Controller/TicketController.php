@@ -30,6 +30,16 @@ class TicketController extends AbstractController
         ]);
     }
 
+    #[Route('/opentickets', name: 'open_tickets', methods: ['GET'])]
+    public function openTickets(TicketRepository $ticketRepository): Response
+    {
+        $tickets = $ticketRepository->findBy(['status' => '4']);
+
+        return $this->render('ticket/index.html.twig', [
+            'tickets' => $tickets,
+        ]);
+    }
+
     #[Route('/new', name: 'ticket_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
