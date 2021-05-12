@@ -52,7 +52,7 @@ class TicketController extends AbstractController
     }
 
     #[Route('/{id}', name: 'ticket_show', methods: ['GET'])]
-    public function show(Ticket $ticket, EntityManagerInterface $entityManager): Response
+    public function show(Ticket $ticket, EntityManagerInterface $entityManager, Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -60,6 +60,7 @@ class TicketController extends AbstractController
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($comment);
@@ -70,7 +71,9 @@ class TicketController extends AbstractController
 
         return $this->render('ticket/show.html.twig', [
             'ticket' => $ticket,
-            'form' => $form->createView(),
+            'comment' => $comment,
+            'user' => $user,
+            'comment_form' => $form->createView(),
         ]);
     }
 

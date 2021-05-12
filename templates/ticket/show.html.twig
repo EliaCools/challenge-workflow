@@ -38,10 +38,12 @@
             </tr>
         </tbody>
     </table>
+{#    <p>{{ comment.content }}</p>#}
 
-    {% if is_granted('ROLE_CUSTOMER') || is_granted('ROLE_AGENT') %}
-        {{ form(form) }}
-    {% endif %}
+        {{ form_start(comment_form) }}
+        {{ form(comment_form) }}
+        {{ form_end(comment_form) }}
+
 
     <a href="{{ path('ticket_index') }}">back to list</a>
 
