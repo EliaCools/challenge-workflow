@@ -14,7 +14,7 @@
             <td>{{ ticket.priority }}</td>
             <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
             <td>
-                <a href="{{ path('ticket_show', {'id': ticket.id}) }}">Details</a>
+                <a href="{{ path('ticket', {'id': ticket.id}) }}">Details</a>
             </td>
         </tr>
     {% else %}
