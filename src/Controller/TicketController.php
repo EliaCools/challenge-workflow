@@ -41,6 +41,9 @@ class TicketController extends AbstractController
             ]);
         }
         elseif(in_array('ROLE_MANAGER', $roles)){
+
+
+
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
             ]);
