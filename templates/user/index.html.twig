@@ -3,7 +3,7 @@
 {% block title %}User index{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
+    <h1>Agent index</h1>
 
     <table class="table">
         <thead>
@@ -11,7 +11,6 @@
                 <th>Id</th>
                 <th>Email</th>
                 <th>Roles</th>
-                <th>Password</th>
                 <th>FirstName</th>
                 <th>LastName</th>
                 <th>NumberClosedTickets</th>
@@ -21,11 +20,11 @@
         </thead>
         <tbody>
         {% for user in users %}
+            {% if user.roles[0] == "ROLE_FIRST_LINE_AGENT" or user.roles[0] == "ROLE_SECOND_LINE_AGENT"  %}
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>{{ user.password }}</td>
                 <td>{{ user.firstName }}</td>
                 <td>{{ user.lastName }}</td>
                 <td>{{ user.numberClosedTickets }}</td>
@@ -35,6 +34,7 @@
                     <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
                 </td>
             </tr>
+            {% endif %}
         {% else %}
             <tr>
                 <td colspan="9">no records found</td>

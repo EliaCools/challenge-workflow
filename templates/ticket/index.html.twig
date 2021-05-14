@@ -23,6 +23,7 @@
             <tr>
                 <th>Title</th>
                 <th>Priority</th>
+                <th>Status</th>
                 <th>Created on</th>
                 <th>Go to</th>
             </tr>
@@ -32,6 +33,7 @@
                 <tr>
                     <td>{{ ticket.title }}</td>
                     <td>{{ ticket.priority }}</td>
+                    <td>{{ ticket.status.name }}</td>
                     <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
                     <td>
                         <a href="{{ path('ticket_show', {'id': ticket.id}) }}">Details</a>

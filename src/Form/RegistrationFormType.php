@@ -43,7 +43,7 @@ class RegistrationFormType extends AbstractType
             ->add('roles', HiddenType::class, [
 
                 'data'  => [
-                    '0' => 'ROLE_COSTUMER',
+                    '0' => 'ROLE_CUSTOMER',
                 ],
             ])
 
