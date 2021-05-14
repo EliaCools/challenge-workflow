@@ -4,7 +4,9 @@ namespace App\Form;
 
 use App\Entity\Comment;
 use App\Entity\Ticket;
+use App\Entity\User;
 use App\Form\DataTransformer\CommentToTicketUserTransformer;
+use App\Form\DataTransformer\TicketDataTransformer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Security\Core\Security;
 use Cassandra\Type\UserType;
@@ -18,39 +20,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class CommentType extends AbstractType
 {
     private Security $security;
-    private CommentToTicketUserTransformer $transformer;
-    private Ticket $ticket;
 
-    public function __construct(CommentToTicketUserTransformer $transformer, Security $security, Ticket $ticket)
+    public function __construct(Security $security)
     {
-        $this->transformer = $transformer;
         $this->security = $security;
-        $this->ticket = $ticket;
     }
 
-//    public function __construct(Security $security)
-//    {
-//
-//    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $user = $this->security->getUser();
 
         $builder
-            ->add('content', TextType::class)
+            ->setMethod('POST')
+            ->add('content', TextType::class, ['label' => 'Your message: '])
             ->add('isPublic', HiddenType::class, [
                 'data' => true
             ])
-            ->add('createdBy', HiddenType::class, [
-                'data' => $this->security->getUser(),
-                'data_class' => null
-            ])
-            ->add('ticket')
-            ->add('Submit', SubmitType::class);
-
-        $builder->get('ticket')
-            ->addModelTransformer($this->transformer);
+            ->add('Send', SubmitType::class);
     }
 
 
