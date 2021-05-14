@@ -36,37 +36,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
-    /**
-     * @param string $role
-     *
-     * @return array
-     */
-    public function findByRole($role)
-    {
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('u')
-            ->from($this->_entityName, 'u')
-            ->where('u.roles LIKE :roles')
-            ->setParameter('roles', '%"'.$role.'"%');
-
-        return $qb->getQuery()->getResult();
-    }
-
          /**
           * @return User[] Returns an array of User objects
           */
 
-   // public function findByRoles($role)
-   // {
-   //     return $this->createQueryBuilder('u')
-   //         ->andWhere('u.roles = :roles')
-   //         ->setParameter('roles', '%"'.$role.'"%')
-   //         //->orderBy('u.id', 'ASC')
-   //         //->setMaxResults(10)
-   //         ->getQuery()
-   //         ->getResult()
-   //     ;
-   // }
+    public function findByRole($role)
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :roles')
+            ->setParameter('roles', '%"'.$role.'"%')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
 
     /*

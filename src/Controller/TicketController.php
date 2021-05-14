@@ -39,6 +39,8 @@ class TicketController extends AbstractController
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
     public function index(TicketRepository $ticketRepository): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $user = $this->getUser();
         $roles = $user->getRoles();
 
