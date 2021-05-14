@@ -24,15 +24,13 @@ class TicketType extends AbstractType
     private $transformer;
     private $security;
     private $statusTransformer;
-    private $dateDataTransformer;
 
     public function __construct(CreatedByDataTransformer $transformer, Security $security,
-                                StatusDataTransformer $statusTransformer, DateDataTransformer $dateDataTransformer)
+                                StatusDataTransformer $statusTransformer)
     {
         $this->transformer = $transformer;
         $this->security = $security;
         $this->statusTransformer = $statusTransformer;
-        $this->dateDataTransformer = $dateDataTransformer;
     }
 
 
@@ -48,28 +46,24 @@ class TicketType extends AbstractType
             ->add('isEscalated', HiddenType::class,[
                 'data' => 0
             ])
-            ->add('dateCreated', HiddenType::class,[
-              'data' => new \DateTime(),
-                'data_class'=>null
 
-           ])
            // ->add('assignedTo')
-            ->add('createdBy', HiddenType::class,[
-                'data'=> $this->security->getUser(),
-               'data_class'=>null
-           ])
+          //  ->add('createdBy', HiddenType::class,[
+          //      'data'=> $this->security->getUser(),
+//
+          // ])
             ->add('status', HiddenType::class,[
                 'empty_data' => '1'
             ])
 
          ->add('Save', SubmitType::class);
 
-        $builder->get('createdBy')
-            ->addModelTransformer($this->transformer);
+       // $builder->get('createdBy')
+       //     ->addModelTransformer($this->transformer);
         $builder->get('status')
             ->addModelTransformer($this->statusTransformer);
-        $builder->get('dateCreated')
-            ->addModelTransformer($this->dateDataTransformer);
+      //  $builder->get('dateCreated')
+      //      ->addModelTransformer($this->dateDataTransformer);
     }
 
 

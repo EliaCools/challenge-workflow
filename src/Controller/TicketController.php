@@ -7,6 +7,7 @@ use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\CommentType;
 use App\Form\TicketType;
+use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,15 +37,35 @@ class TicketController extends AbstractController
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
     public function index(TicketRepository $ticketRepository): Response
     {
-        return $this->render('ticket/index.html.twig', [
-            'tickets' => $ticketRepository->findAll(),
-        ]);
+        $user = $this->getUser();
+        $roles = $user->getRoles();
+
+        if(in_array('ROLE_CUSTOMER', $roles)){
+            return $this->render('ticket/index.html.twig', [
+                'tickets' => $user->getTicketsCreated(),
+            ]);
+        }
+        elseif(in_array('ROLE_FIRST_LINE_AGENT', $roles) || in_array('ROLE_SECOND_LINE_AGENT',
+                $roles)){
+            return $this->render('ticket/index.html.twig', [
+                'tickets' => $user->getTickets(),
+            ]);
+        }
+        elseif(in_array('ROLE_MANAGER', $roles)){
+            return $this->render('ticket/index.html.twig', [
+                'tickets' => $ticketRepository->findAll(),
+            ]);
+        }
     }
 
     #[Route('/opentickets', name: 'open_tickets', methods: ['GET'])]
-    public function openTickets(TicketRepository $ticketRepository): Response
+    public function openTickets(TicketRepository $ticketRepository, StatusRepository
+    $statusRepository): Response
     {
-        $tickets = $ticketRepository->findBy(['status' => '4']);
+        $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
+
+        $statusId = $statusRepository->findBy(['name' => 'open']);
+        $tickets = $ticketRepository->findBy(['status' => $statusId]);
 
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
@@ -59,6 +80,8 @@ class TicketController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $ticket->setDateCreated(new \DateTime());
+            $ticket->setCreatedBy($this->getUser());
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($ticket);
             $entityManager->flush();
