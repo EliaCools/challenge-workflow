@@ -1,15 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ticket{% endblock %}
+{% block title %}Ticket {{ ticket.id }}{% endblock %}
 
 {% block body %}
+    <main class="container mb-5 pb-5">
+        <h1 class="text-center m-5">Ticket {{ ticket.id }}</h1>
 
-    <h1>Ticket</h1>
-    {% if is_granted('ROLE_CUSTOMER') %}
-        {{ include('ticket/_ticket_reopen.html.twig') }}
-    {% endif %}
-    <table class="table">
-        <tbody>
+        <div class="mb-5 d-flex justify-content-end">
+            <a class="btn btn-primary m-1" href="{{ path('ticket_index') }}">Back to all
+                tickets</a>
+
+            <a class="btn btn-primary m-1"
+               href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
+        </div>
+
+        {% if is_granted('ROLE_CUSTOMER') %}
+            {{ include('ticket/_ticket_reopen.html.twig') }}
+        {% endif %}
+        <table class="table">
+            <tbody>
             <tr>
                 <th>Id</th>
                 <td>{{ ticket.id }}</td>
@@ -38,26 +47,23 @@
                 <th>DateClosed</th>
                 <td>{{ ticket.dateClosed ? ticket.dateClosed|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
-        </tbody>
-    </table>
-{#    <p>{{ comment.content }}</p>#}
+            </tbody>
+        </table>
 
-    {% for comment in ticket.comments %}
-        <h4>{{ comment.createdBy.email }}</h4>
-        <p>{{ comment.content }}</p>
-    {% endfor %}
+        {# <p>{{ comment.content }}</p> #}
 
+        <div>
+            {% for comment in ticket.comments %}
+                <h4>{{ comment.createdBy.email }}</h4>
+                <p>{{ comment.content }}</p>
+            {% endfor %}
+        </div>
 
+        {% form_theme comment_form 'bootstrap_4_layout.html.twig' %}
         {{ form_start(comment_form) }}
         {{ form(comment_form) }}
         {{ form_end(comment_form) }}
 
 
-
-
-    <a href="{{ path('ticket_index') }}">back to list</a>
-
-    <a href="{{ path('ticket_edit', {'id': ticket.id}) }}">edit</a>
-
-    {{ include('ticket/_delete_form.html.twig') }}
+    </main>
 {% endblock %}
