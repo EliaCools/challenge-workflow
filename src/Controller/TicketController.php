@@ -75,6 +75,8 @@ class TicketController extends AbstractController
     #[Route('/new', name: 'ticket_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
+
         $ticket = new Ticket();
         $form = $this->createForm(TicketType::class, $ticket);
         $form->handleRequest($request);
