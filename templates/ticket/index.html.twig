@@ -4,7 +4,7 @@
 
 {% block body %}
     <main class="container mb-5 pb-5">
-        <h1 class="text-center m-5">My tickets</h1>
+        <h1 class="text-center m-5">My Tickets</h1>
 
         <div class="mb-5 d-flex justify-content-end">
             {% if is_granted('ROLE_FIRST_LINE_AGENT') %}
@@ -17,7 +17,7 @@
                     ticket</a>
             {% elseif is_granted('ROLE_MANAGER') %}
                 <a class="btn btn-primary m-1" href="{{ path('user_index') }}">All
-                    Users</a>
+                    Employees</a>
                 <a class="btn btn-primary m-1" href="{{ path('open_tickets') }}">All open
                     tickets</a>
             {% endif %}
