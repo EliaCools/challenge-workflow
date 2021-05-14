@@ -25,7 +25,7 @@ class AppFixtures extends Fixture
 
         $user = new User();
         $user->setEmail('spacebar133%d@example.com');
-        $user->setRoles(['ROLE_SECOND_LINE_AGENT']);
+        $user->setRoles(['ROLE_SECOND_LINE_AGENT', 'ROLE_EMPLOYEE']);
         $user->setPassword($this->passwordEncoder->encodePassword($user,'new_password'));
         $user->setFirstName('Julio');
         $user->setLastName('Texeira');
@@ -43,7 +43,7 @@ class AppFixtures extends Fixture
 
         $user2 = new User();
         $user2->setEmail('martedeleeuw@hotmail.com');
-        $user2->setRoles(['ROLE_FIRST_LINE_AGENT']);
+        $user2->setRoles(['ROLE_FIRST_LINE_AGENT', 'ROLE_EMPLOYEE']);
         $user2->setPassword($this->passwordEncoder->encodePassword($user2,'new_password3'));
         $user2->setFirstName('Marte');
         $user2->setLastName('De Leeuw');
@@ -53,7 +53,7 @@ class AppFixtures extends Fixture
 
         $user3 = new User();
         $user3->setEmail('jenifer@gmail.com');
-        $user3->setRoles(['ROLE_MANAGER']);
+        $user3->setRoles(['ROLE_MANAGER', 'ROLE_EMPLOYEE']);
         $user3->setPassword($this->passwordEncoder->encodePassword($user3,'new_password4'));
         $user3->setFirstName('Jenifer');
         $user3->setLastName('Bucheli');

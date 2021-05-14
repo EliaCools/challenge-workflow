@@ -1,0 +1,26 @@
+<table class="table">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Priority</th>
+        <th>Created on</th>
+        <th>Go to</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ticket in tickets %}
+        <tr>
+            <td>{{ ticket.title }}</td>
+            <td>{{ ticket.priority }}</td>
+            <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
+            <td>
+                <a href="{{ path('ticket', {'id': ticket.id}) }}">Details</a>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="8">no records found</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

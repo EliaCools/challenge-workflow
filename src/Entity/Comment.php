@@ -39,6 +39,18 @@ class Comment
      */
     private $isPublic;
 
+    /**
+     * Comment constructor.
+     * @param $createdBy
+     * @param $ticket
+     */
+    public function __construct(User $createdBy, Ticket $ticket)
+    {
+        $this->createdBy = $createdBy;
+        $this->ticket = $ticket;
+    }
+
+
     public function getId(): ?int
     {
         return $this->id;

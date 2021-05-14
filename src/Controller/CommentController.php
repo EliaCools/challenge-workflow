@@ -38,14 +38,14 @@ class CommentController extends AbstractController
 
         return $this->render('comment/new.html.twig', [
             'comment' => $comment,
-            'form' => $form->createView(),
+            'comment_form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'comment_show', methods: ['GET'])]
     public function show(Comment $comment): Response
     {
-        return $this->render('comment/show.html.twig', [
+        return $this->render('ticket/show.html.twig', [
             'comment' => $comment,
         ]);
     }
