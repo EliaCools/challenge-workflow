@@ -6,10 +6,6 @@
     <main class="container mb-5 pb-5">
         <h1 class="text-center m-5">My tickets</h1>
 
-        {% if is_granted('ROLE_MANAGER') %}
-            {{ include('ticket/_statistics.html.twig') }}
-        {% endif %}
-
         <div class="mb-5 d-flex justify-content-end">
             {% if is_granted('ROLE_FIRST_LINE_AGENT') %}
                 <a class="btn btn-primary" href="{{ path('open_tickets') }}">All open
