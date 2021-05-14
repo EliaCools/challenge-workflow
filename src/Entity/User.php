@@ -197,6 +197,11 @@ class User implements UserInterface
         return $this->numberReopenedTickets;
     }
 
+    public function calculatePercentageReopenedTickets(): int
+    {
+        return $this->numberReopenedTickets / $this->numberClosedTickets * 100;
+    }
+
     public function setNumberReopenedTickets(?int $numberReopenedTickets): self
     {
         $this->numberReopenedTickets = $numberReopenedTickets;

@@ -98,7 +98,6 @@ class TicketController extends AbstractController
     #[Route('ticket/{id}', name: 'ticket')]
     public function show(Ticket $ticket): Response
     {
-
         $form = $this->createForm(CommentType::class, null, [
             'action' => $this->urlGenerator->generate('ticket_add_comment', [
                 'id' => $ticket->getId()])
