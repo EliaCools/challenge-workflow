@@ -52,9 +52,6 @@ class TicketController extends AbstractController
             ]);
         }
         elseif(in_array('ROLE_MANAGER', $roles)){
-
-
-
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
             ]);
@@ -101,7 +98,6 @@ class TicketController extends AbstractController
     #[Route('ticket/{id}', name: 'ticket')]
     public function show(Ticket $ticket): Response
     {
-
         $form = $this->createForm(CommentType::class, null, [
             'action' => $this->urlGenerator->generate('ticket_add_comment', [
                 'id' => $ticket->getId()])
