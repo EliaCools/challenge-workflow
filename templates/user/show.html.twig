@@ -5,11 +5,17 @@
 {% block body %}
     <main class="container mb-5 pb-5">
         <h1 class="text-center m-5">{{ user.lastName }}  {{ user.firstName }}</h1>
-
         <div class="mb-5 d-flex justify-content-end">
-            <a class="btn btn-primary m-1" href="{{ path('user_index') }}">Back to all
-                employees
-            </a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a class="btn btn-primary m-1" href="{{ path('user_index') }}">Back to all
+                    employees
+                </a>
+            {% else %}
+                <a class="btn btn-primary m-1" href="{{ path('ticket_index') }}">
+                    my tickets
+                </a>
+
+            {% endif %}
 
             <a class="btn btn-primary m-1"
                href="{{ path('user_edit', {'id': user.id}) }}">Edit</a>
@@ -58,7 +64,7 @@
 
         {% if 'ROLE_FIRST_LINE_AGENT' in user.roles or 'ROLE_SECOND_LINE_AGENT' in
             user.roles %}
-        {{ include('user/_statistics.html.twig') }}
+            {{ include('user/_statistics.html.twig') }}
         {% endif %}
 
     </main>
