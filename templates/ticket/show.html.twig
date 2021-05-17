@@ -11,16 +11,16 @@
                 tickets</a>
 
             {% if is_granted('ROLE_MANAGER') %}
-            <a class="btn btn-primary m-1"
-               href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
+                <a class="btn btn-primary m-1"
+                   href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
             {% endif %}
         </div>
 
-        {% if ticket.assignedTo is null and (is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT'))   %}
+        {% if ticket.assignedTo is null and (is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT')) %}
             {{ include('ticket/_ticket_assign.html.twig') }}
         {% endif %}
 
-        {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId or ticket.status.name == 'closed' %}
+        {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId and ticket.status.name == 'closed' %}
             {{ include('ticket/_ticket_reopen.html.twig') }}
         {% endif %}
         {% if is_granted('ROLE_EMPLOYEE' and ticket.status.name != 'closed') %}
@@ -57,13 +57,11 @@
             </tr>
             <tr>
                 <th>Created on</th>
-                <td>{{ ticket.dateCreated ? ticket.dateCreated|date('d-m-Y H:i:s') : ''
-                    }}</td>
+                <td>{{ ticket.dateCreated ? ticket.dateCreated|date('d-m-Y H:i:s') : '' }}</td>
             </tr>
             <tr>
                 <th>Closed on</th>
-                <td>{{ ticket.dateClosed ? ticket.dateClosed|date('d-m-Y H:i:s') : ''
-                    }}</td>
+                <td>{{ ticket.dateClosed ? ticket.dateClosed|date('d-m-Y H:i:s') : '' }}</td>
             </tr>
             </tbody>
         </table>
@@ -72,16 +70,20 @@
 
         <div>
             {% for comment in ticket.comments %}
-                <h4>{{ comment.createdBy.email }}</h4>
-                <p>{{ comment.content }}</p>
+                {% if is_granted('ROLE_CUSTOMER') and comment.isPublic == true or is_granted('ROLE_EMPLOYEE') %}
+                    <h4>{{ comment.createdBy.email }}</h4>
+                    <p>{{ comment.content }}</p>
+                {% endif %}
             {% endfor %}
+
         </div>
 
-        {% form_theme comment_form 'bootstrap_4_layout.html.twig' %}
-        {{ form_start(comment_form) }}
-        {{ form(comment_form) }}
-        {{ form_end(comment_form) }}
-
+        {% if is_granted('ROLE_CUSTOMER') or is_granted('ROLE_MANAGER') or ticket.assignedTo == user %}
+            {% form_theme comment_form 'bootstrap_4_layout.html.twig' %}
+            {{ form_start(comment_form) }}
+            {{ form(comment_form) }}
+            {{ form_end(comment_form) }}
+        {% endif %}
 
     </main>
 {% endblock %}

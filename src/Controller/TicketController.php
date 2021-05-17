@@ -15,6 +15,7 @@ use App\Form\TicketType;
 use App\Form\TicketWontFixType;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +28,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class TicketController extends AbstractController
 {
 //    private $session;
-//    private $userRepository;
+    private UserRepository $userRepository;
 //    private $name;
 //    private $verified;
     /**
@@ -36,8 +37,9 @@ class TicketController extends AbstractController
     private UrlGeneratorInterface $urlGenerator;
     private $statusRepository;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository)
+    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository)
     {
+        $this->userRepository = $userRepository;
         $this->urlGenerator = $urlGenerator;
         $this->statusRepository = $statusRepository;
     }
@@ -76,16 +78,16 @@ class TicketController extends AbstractController
 
         $statusId = $statusRepository->findBy(['name' => 'open']);
         $tickets = $ticketRepository->findBy(['status' => $statusId,
-                'isEscalated' => false]);
+            'isEscalated' => false]);
 
         if ($this->isGranted('ROLE_SECOND_LINE_AGENT')) {
             $tickets = $ticketRepository->findBy(['status' => $statusId,
                 'isEscalated' => true]);
 
-        return $this->render('ticket/index.html.twig', [
-            'tickets' => $tickets,
-            'title' => 'Escalated Tickets'
-        ]);
+            return $this->render('ticket/index.html.twig', [
+                'tickets' => $tickets,
+                'title' => 'Escalated Tickets'
+            ]);
 
         }
 
@@ -101,7 +103,6 @@ class TicketController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
 
         $statusName = $this->statusRepository->findBy(['name' => 'open']);
-
 
 
         $ticket = new Ticket();
@@ -129,10 +130,11 @@ class TicketController extends AbstractController
     #[Route('ticket/{id}', name: 'ticket')]
     public function show(Ticket $ticket, StatusRepository $statusRepository, TicketRepository $ticketRepository): Response
     {
-        $wontFixStatus = $statusRepository->findBy(['name'=> 'wont_fix']);
+        $wontFixStatus = $statusRepository->findBy(['name' => 'wont_fix']);
         $wontFixId = $wontFixStatus[0]->getId();
 
         $user = $this->getUser();
+        $userId = $this->getUser()->getId();
         $roles = $user->getRoles();
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -172,7 +174,9 @@ class TicketController extends AbstractController
             'ticket_close' => $statusTicketForm->createView(),
             'ticket_reopen' => $ticketReopen->createView(),
             'ticket_escalate' => $ticketEscalate->createView(),
-            'ticket_assign' => $ticketAssignForm->createView()
+            'ticket_assign' => $ticketAssignForm->createView(),
+            'wontFixId' => $wontFixId,
+            'user' => $user
         ]);
 
 //            return $this->render('ticket/show.html.twig', [
@@ -189,6 +193,8 @@ class TicketController extends AbstractController
         //Add logic to not allow agent to send message if ticket not assigned to him
         //Add logic to differentiate who posted the comment (customer: , Agent: )
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+        $roles = $user->getRoles();
 
         if (!$this->getUser() instanceof User) {
             throw new \DomainException('You are not allowed to send a message.');
@@ -200,12 +206,16 @@ class TicketController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setIsPublic(true);
+            if (in_array('ROLE_EMPLOYEE', $roles)) {
+                $form->get('isPublic')->getData();
+                $comment->setIsPublic($form->get('isPublic')->getData());
+            }
             $this->getDoctrine()->getManager()->persist($comment);
             $this->getDoctrine()->getManager()->flush();
 
             $this->addFlash('success', 'Your message was sent.');
         }
-
         return $this->redirectToRoute('ticket', ['id' => $ticket->getId()]);
 
     }
@@ -260,7 +270,7 @@ class TicketController extends AbstractController
         $formTicketEscalate = $this->createForm(TicketEscalateType::class);
         $formTicketEscalate->handleRequest($request);
 
-        $openStatus = $this->statusRepository->findOneBy(['name' =>'open']);
+        $openStatus = $this->statusRepository->findOneBy(['name' => 'open']);
         if ($formTicketEscalate->isSubmitted() && $formTicketEscalate->isValid()) {
             $ticket->setIsEscalated(true);
             $ticket->setAssignedTo(null);
@@ -285,16 +295,15 @@ class TicketController extends AbstractController
         $statusName = $this->statusRepository->findBy(['name' => 'wont_fix']);
 
 
-
         if ($form->isSubmitted() && $form->isValid()) {
-           if($form->get('wontFix')->getData() === true){
-               $ticket->setStatus($statusName[0]);
-           }
+            if ($form->get('wontFix')->getData() === true) {
+                $ticket->setStatus($statusName[0]);
+            }
 
             $this->getDoctrine()->getManager()->flush();
 
-            if($form->get('wontFix')->getData() === true){
-             return  $this->redirectToRoute('ticket_wont_fix',['id' => $ticket->getId()]);
+            if ($form->get('wontFix')->getData() === true) {
+                return $this->redirectToRoute('ticket_wont_fix', ['id' => $ticket->getId()]);
             }
 
 
@@ -320,17 +329,17 @@ class TicketController extends AbstractController
     }
 
 
-      #[Route('ticket/{id}/wontfix', name: 'ticket_wont_fix')]
-      public function wontFix(Ticket $ticket, Request $request): Response
-      {
+    #[Route('ticket/{id}/wontfix', name: 'ticket_wont_fix')]
+    public function wontFix(Ticket $ticket, Request $request): Response
+    {
 
-          $form = $this->createForm(CommentType::class);
+        $form = $this->createForm(CommentType::class);
 
-          return $this->render('comment/wontfixreason.html.twig', [
-              'form' => $form->createView()
-          ]);
+        return $this->render('comment/wontfixreason.html.twig', [
+            'form' => $form->createView()
+        ]);
 
-      }
+    }
 
 
     #[Route('ticket/{id}/assignTicket', name: 'ticket_assign')]
@@ -341,7 +350,7 @@ class TicketController extends AbstractController
         $formTicketEscalate = $this->createForm(TicketAssignType::class);
         $formTicketEscalate->handleRequest($request);
 
-        $statusId = $this->statusRepository->findOneBy(['name'=>'in_progress']);
+        $statusId = $this->statusRepository->findOneBy(['name' => 'in_progress']);
 
         if ($formTicketEscalate->isSubmitted() && $formTicketEscalate->isValid()) {
             $ticket->setAssignedTo($this->getUser());
@@ -353,7 +362,6 @@ class TicketController extends AbstractController
         return $this->redirectToRoute('ticket', ['id' => $ticket->getId()]);
 
     }
-
 
 
 }

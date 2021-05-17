@@ -34,7 +34,7 @@ class CommentType extends AbstractType
     {
         $user = $this->security->getUser();
 
-        if (!in_array('ROLE_CUSTOMER', $options['roles'], true)) {
+
             $builder
                 ->setMethod('POST')
                 ->add('isPublic', ChoiceType::class, [
@@ -44,18 +44,23 @@ class CommentType extends AbstractType
                     ],
                     'label'    => 'Public message?',
                     'required' => false,
+                    'mapped' => false
                 ])
                 ->add('content', TextType::class, ['label' => 'Your message: '])
                 ->add('Send', SubmitType::class);
-        } else {
-            $builder
-                ->setMethod('POST')
-                ->add('content', TextType::class, ['label' => 'Your message: '])
-                ->add('isPublic', HiddenType::class, [
-                    'data' => true
-                ])
-                ->add('Send', SubmitType::class);
+
+        if(in_array('ROLE_CUSTOMER',$user->getRoles())){
+            $builder->remove('isPublic');
         }
+
+//            $builder
+//                ->setMethod('POST')
+//                ->add('content', TextType::class, ['label' => 'Your message: '])
+//                ->add('isPublic', HiddenType::class, [
+//                    'data' => true
+//                ])
+//                ->add('Send', SubmitType::class);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)
