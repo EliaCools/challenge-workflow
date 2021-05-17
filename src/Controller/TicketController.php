@@ -251,6 +251,7 @@ class TicketController extends AbstractController
         $formStatus = $this->createForm(TicketCloseType::class);
         $formStatus->handleRequest($request);
 
+
         if ($formStatus->isSubmitted() && $formStatus->isValid()) {
             $ticket->setStatus($status);
             $this->getDoctrine()->getManager()->persist($status);
