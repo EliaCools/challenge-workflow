@@ -61,7 +61,8 @@ class TicketType extends AbstractType
                     'low' => 'low',
                     'medium' => 'medium',
                     'high' => 'high'
-                ]
+                ],
+                'mapped' => false
             ])
 
 
@@ -85,9 +86,11 @@ class TicketType extends AbstractType
         ->add('Save', SubmitType::class);
 
 
-        // important-----------
+
         if(!in_array('ROLE_MANAGER',$this->user->getRoles())){
             $builder->remove('wontFix');
+            $builder->remove('assignedTo');
+            $builder->remove('priority');
         }
 
     }

@@ -108,6 +108,7 @@ class TicketController extends AbstractController
             $ticket->setDateCreated(new \DateTime());
             $ticket->setCreatedBy($this->getUser());
             $ticket->setStatus($statusName[0]);
+            $ticket->setPriority('undefined');
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($ticket);
             $entityManager->flush();
@@ -223,7 +224,7 @@ class TicketController extends AbstractController
 
             $this->getDoctrine()->getManager()->flush();
 
-            if($form->get('checkbox')->getData() === true){
+            if($form->get('wontFix')->getData() === true){
              return  $this->redirectToRoute('ticket_wont_fix',['id' => $ticket->getId()]);
             }
 
