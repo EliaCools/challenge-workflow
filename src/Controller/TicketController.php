@@ -205,11 +205,26 @@ class TicketController extends AbstractController
         $form = $this->createForm(CommentType::class, $comment, ['roles' => $this->getUser()->getRoles()]);
         $form->handleRequest($request);
 
+
+
+
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $comment->setIsPublic(true);
+            if($comment->getTicket()->getAssignedTo() !== null){
+             $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name'=>'in_progress']));
+            }
+
             if (in_array('ROLE_EMPLOYEE', $roles)) {
+
                 $form->get('isPublic')->getData();
                 $comment->setIsPublic($form->get('isPublic')->getData());
+
+                if($comment->getIsPublic() === true){
+                $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name'=>'waiting_for_customer']));
+                }
+
             }
             $this->getDoctrine()->getManager()->persist($comment);
             $this->getDoctrine()->getManager()->flush();
@@ -231,9 +246,16 @@ class TicketController extends AbstractController
         $formStatus->handleRequest($request);
 
         if ($formStatus->isSubmitted() && $formStatus->isValid()) {
+            $increased = $ticket->getAssignedTo()->increaseNumberReopenedTickets();
+            $ticket->getAssignedTo();
+            $ticket->getAssignedTo()->setNumberReopenedTickets($increased);
+
+
             $ticket->setStatus($status);
+            $ticket->setDateClosed(null);
             $this->getDoctrine()->getManager()->persist($status);
             $this->getDoctrine()->getManager()->flush();
+
 
             $this->addFlash('success', 'Your ticket was reopened.');
         }
@@ -254,6 +276,7 @@ class TicketController extends AbstractController
 
         if ($formStatus->isSubmitted() && $formStatus->isValid()) {
             $ticket->setStatus($status);
+            $ticket->setDateClosed(new \DateTime());
             $this->getDoctrine()->getManager()->persist($status);
             $this->getDoctrine()->getManager()->flush();
 

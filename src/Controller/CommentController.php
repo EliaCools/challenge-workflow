@@ -60,11 +60,11 @@ class CommentController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            if($form->getData()->isPrivate() === false && $this->isGranted('ROLE_EMPLOYEE')){
+           // if($form->getData()->isPrivate() === false && $this->isGranted('ROLE_EMPLOYEE')){
                 $this->sendMail();
 
 
-            }
+           // }
 
 
 
@@ -123,14 +123,25 @@ class CommentController extends AbstractController
         $customerEmail =$comments[0]->getTicket()->getCreatedBy()->getEmail();
         $mailer = $this->mailer;
 
-        $email = (new Email())
+     //  $email = (new Email())
+     //      ->from(new Address('isengardbot@gmail.com', 'mail bot'))
+     //      ->to('eliacools.e@gmail.com')
+     //      ->subject('Please review our solution')
+     //      ->html('reset_password/agentSetPassMail.html.twig');
+
+        $email = (new TemplatedEmail())
             ->from(new Address('isengardbot@gmail.com', 'mail bot'))
             ->to('eliacools.e@gmail.com')
-            ->subject('Please review our solution')
-            ->html('reset_password/agentSetPassMail.html.twig');
-
+            //->cc('cc@example.com')
+            //->bcc('bcc@example.com')
+            //->replyTo('fabien@example.com')
+            //->priority(Email::PRIORITY_HIGH)
+            ->subject('Time for Symfony Mailer!')
+            ->text('Sending emails is fun again!')
+            ->html('<p>See Twig integration for better HTML integration!</p>');
 
         $mailer->send($email);
+
 
     }
 }
