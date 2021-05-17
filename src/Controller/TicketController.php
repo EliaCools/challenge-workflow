@@ -7,6 +7,7 @@ use App\Entity\Status;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\CommentType;
+use App\Form\DeassignFormType;
 use App\Form\TicketAssignType;
 use App\Form\TicketCloseType;
 use App\Form\TicketEscalateType;
@@ -35,13 +36,15 @@ class TicketController extends AbstractController
      * @var UrlGeneratorInterface
      * */
     private UrlGeneratorInterface $urlGenerator;
-    private $statusRepository;
+    private StatusRepository $statusRepository;
+    private TicketRepository $ticketRepository;
 
-    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository)
+    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository, TicketRepository $ticketRepository)
     {
         $this->userRepository = $userRepository;
         $this->urlGenerator = $urlGenerator;
         $this->statusRepository = $statusRepository;
+        $this->ticketRepository = $ticketRepository;
     }
 
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
@@ -64,9 +67,13 @@ class TicketController extends AbstractController
                 'title' => 'My Tickets'
             ]);
         } elseif (in_array('ROLE_MANAGER', $roles)) {
+            $ticketDeassign = $this->createForm(DeassignFormType::class, null, [
+                'action' => $this->urlGenerator->generate('ticket_deassign')
+            ]);
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
-                'title' => 'All Tickets'
+                'title' => 'All Tickets',
+                'ticketDeassign' => $ticketDeassign->createView()
             ]);
         }
     }
@@ -178,13 +185,6 @@ class TicketController extends AbstractController
             'wontFixId' => $wontFixId,
             'user' => $user
         ]);
-
-//            return $this->render('ticket/show.html.twig', [
-//                'ticket' => $ticket,
-//                'comment_form' => $form->createView()
-//            ]);
-
-
     }
 
     #[Route('ticket/{id}/addcomment', name: 'ticket_add_comment')]
@@ -206,14 +206,11 @@ class TicketController extends AbstractController
         $form->handleRequest($request);
 
 
-
-
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             $comment->setIsPublic(true);
-            if($comment->getTicket()->getAssignedTo() !== null){
-             $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name'=>'in_progress']));
+            if ($comment->getTicket()->getAssignedTo() !== null) {
+                $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name' => 'in_progress']));
             }
 
             if (in_array('ROLE_EMPLOYEE', $roles)) {
@@ -221,8 +218,8 @@ class TicketController extends AbstractController
                 $form->get('isPublic')->getData();
                 $comment->setIsPublic($form->get('isPublic')->getData());
 
-                if($comment->getIsPublic() === true){
-                $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name'=>'waiting_for_customer']));
+                if ($comment->getIsPublic() === true) {
+                    $comment->getTicket()->setStatus($this->statusRepository->findOneBy(['name' => 'waiting_for_customer']));
                 }
 
             }
@@ -367,7 +364,7 @@ class TicketController extends AbstractController
 
 
     #[Route('ticket/{id}/assignTicket', name: 'ticket_assign')]
-    public function assingTicket(Ticket $ticket, Request $request): Response
+    public function assignTicket(Ticket $ticket, Request $request): Response
     {
         $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
 
@@ -387,6 +384,29 @@ class TicketController extends AbstractController
 
     }
 
+    #[Route('ticket/deassignTicket', name: 'ticket_deassign')]
+    public function deassignTickets(Ticket $ticket, Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_MANAGER');
+
+        $deassignForm = $this->createForm(DeassignFormType::class);
+        $deassignForm->handleRequest($request);
+
+        $statusId = $this->statusRepository->findOneBy(['name' => 'open']);
+        $allTickets = $this->ticketRepository->findAll();
+
+        if ($deassignForm->isSubmitted() && $deassignForm->isValid()) {
+            foreach ($allTickets as $ticket) {
+                $ticket->setAssignedTo(null);
+                $ticket->setStatus($statusId);
+            }
+            $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', 'All tickets were succesfully deassigned.');
+        }
+        return $this->redirectToRoute('ticket_index');
+
+    }
 
 }
 

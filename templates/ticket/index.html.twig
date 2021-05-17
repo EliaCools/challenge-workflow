@@ -26,6 +26,7 @@
                     new
                     ticket</a>
             {% elseif is_granted('ROLE_MANAGER') %}
+                {{ form(ticketDeassign) }}
                 <a class="btn btn-primary m-1" href="{{ path('user_index') }}">All
                     Employees</a>
                 <a class="btn btn-primary m-1" href="{{ path('open_tickets') }}">All open
