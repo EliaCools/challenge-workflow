@@ -20,10 +20,12 @@ class UserType extends AbstractType
         $builder
             ->add('email')
             ->add('roles',ChoiceType::class,[
+                'mapped'=>false,
                 'choices'  => [
                     'first line agent' => 'ROLE_FIRST_LINE_AGENT',
                     'second line agent' => 'ROLE_SECOND_LINE_AGENT',
                 ],
+
             ])
             ->add('plainPassword', HiddenType::class, [
                 // instead of being set onto the object directly,
@@ -33,20 +35,6 @@ class UserType extends AbstractType
             ])
             ->add('firstName')
             ->add('lastName');
-
-
-            $builder->get('roles')
-                ->addModelTransformer(new CallbackTransformer(
-                    function ($tagsAsArray) {
-                        // transform the array to a string
-                        return implode(', ', $tagsAsArray);
-                        },
-                    function ($tagsAsString) {
-                        // transform the string back to an array
-                        return explode(', ', $tagsAsString);
-                    }
-                    ))
-                    ;
 
     }
 

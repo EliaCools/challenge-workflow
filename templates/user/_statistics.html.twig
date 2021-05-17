@@ -1,0 +1,26 @@
+<div class="card-deck m-5">
+    <div class="card text-center">
+        <div class="card-body">
+            <h1 class="card-text"> {{ user.tickets|length }}</h1>
+            <p class="card-title">open tickets</p>
+        </div>
+    </div>
+    <div class="card text-center">
+        <div class="card-body">
+            <h1 class="card-text"> {{ user.numberClosedTickets }}</h1>
+            <p class="card-title">closed tickets</p>
+        </div>
+    </div>
+    <div class="card text-center">
+        <div class="card-body">
+            <h1 class="card-text"> {{ user.numberReopenedTickets }}</h1>
+            <p class="card-title">reopened tickets</p>
+        </div>
+    </div>
+    <div class="card text-center">
+        <div class="card-body">
+            <h1 class="card-text">{{ user.calculatePercentageReopenedTickets() }}%</h1>
+            <p class="card-title">reopened tickets</p>
+        </div>
+    </div>
+</div>
