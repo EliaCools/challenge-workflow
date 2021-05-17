@@ -14,11 +14,15 @@
                href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
         </div>
 
-        {% if is_granted('ROLE_CUSTOMER') %}
+        {% if ticket_reopen_form is defined ? is_granted('ROLE_CUSTOMER') %}
             {{ include('ticket/_ticket_reopen.html.twig') }}
         {% endif %}
         <table class="table">
             <tbody>
+            <tr>
+                <th>Status</th>
+                <td>{{ ticket.status.name }}</td>
+            </tr>
             <tr>
                 <th>Id</th>
                 <td>{{ ticket.id }}</td>
@@ -61,7 +65,7 @@
 
         {% form_theme comment_form 'bootstrap_4_layout.html.twig' %}
         {{ form_start(comment_form) }}
-        {{ form(comment_form) }}
+        {{ form_row(comment_form) }}
         {{ form_end(comment_form) }}
 
 
