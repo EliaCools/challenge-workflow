@@ -146,7 +146,7 @@ class Ticket
         return $this->dateClosed;
     }
 
-    public function setDateClosed(\DateTimeInterface $dateClosed): self
+    public function setDateClosed(?\DateTimeInterface $dateClosed): ?self
     {
         $this->dateClosed = $dateClosed;
 

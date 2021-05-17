@@ -214,6 +214,16 @@ class User implements UserInterface
         return $this;
     }
 
+    public function increaseNumberReopenedTickets(): int
+    {
+        if($this->numberReopenedTickets === null){
+            $this->numberReopenedTickets = 0;
+        }
+      return  $this->numberReopenedTickets++;
+
+    }
+
+
     /**
      * @return Collection|Ticket[]
      */

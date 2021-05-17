@@ -40,11 +40,12 @@ class CommentType extends AbstractType
                 ->add('isPublic', ChoiceType::class, [
                     'choices' => [
                       'Public' => true,
-                      'Private' => false
+                      'Private' => false,
                     ],
                     'label'    => 'Public message?',
                     'required' => false,
-                    'mapped' => false
+                    'mapped' => false,
+                    'placeholder' =>false
                 ])
                 ->add('content', TextType::class, ['label' => 'Your message: '])
                 ->add('Send', SubmitType::class);
