@@ -33,7 +33,7 @@
 
                 <li class="nav-item active">
                     {% if is_granted('ROLE_CUSTOMER') %}
-                        <a class="nav-link px-4" href="{{ path('open_tickets') }}">Open Tickets <span class="sr-only">(current)</span></a>
+                        <a class="nav-link px-4" href="{{ path('ticket_index') }}">Open Tickets <span class="sr-only">(current)</span></a>
                     {% endif %}
                 </li>
 

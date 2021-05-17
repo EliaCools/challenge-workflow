@@ -10,11 +10,13 @@
             <a class="btn btn-primary m-1" href="{{ path('ticket_index') }}">Back to all
                 tickets</a>
 
+            {% if is_granted('ROLE_MANAGER') %}
             <a class="btn btn-primary m-1"
                href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
+            {% endif %}
         </div>
 
-        {% if is_granted('ROLE_CUSTOMER') and ticket.status.name == 'closed' %}
+        {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId or ticket.status.name == 'closed' %}
             {{ include('ticket/_ticket_reopen.html.twig') }}
         {% endif %}
         {% if is_granted('ROLE_EMPLOYEE' and ticket.status.name != 'closed') %}
@@ -71,7 +73,7 @@
 
         {% form_theme comment_form 'bootstrap_4_layout.html.twig' %}
         {{ form_start(comment_form) }}
-        {{ form_row(comment_form) }}
+        {{ form(comment_form) }}
         {{ form_end(comment_form) }}
 
 
