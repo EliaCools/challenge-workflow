@@ -10,6 +10,8 @@ use App\Entity\User;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use MongoDB\BSON\Timestamp;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -26,6 +28,7 @@ class TicketType extends AbstractType
     private $security;
     private $statusTransformer;
     private $statusRepository;
+    private $user;
 
     public function __construct(CreatedByDataTransformer $transformer, Security $security,
                                 StatusDataTransformer $statusTransformer, StatusRepository $statusRepository)
@@ -34,6 +37,7 @@ class TicketType extends AbstractType
         $this->security = $security;
         $this->statusTransformer = $statusTransformer;
         $this->statusRepository = $statusRepository;
+        $this->user = $security->getUser();
     }
 
 
@@ -50,27 +54,28 @@ class TicketType extends AbstractType
                 'data' => 0
             ])
 
-           // ->add('assignedTo')
-          //  ->add('createdBy', HiddenType::class,[
-          //      'data'=> $this->security->getUser(),
-//
-          // ])
-            ->add('status', HiddenType::class,[
-                'empty_data' => $this->OpenStatusId()
+            ->add('wontFix', CheckboxType::class,[
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Won\'t fix'
             ])
 
-         ->add('Save', SubmitType::class);
 
-       // $builder->get('createdBy')
-       //     ->addModelTransformer($this->transformer);
-        $builder->get('status')
-            ->addModelTransformer($this->statusTransformer);
-      //  $builder->get('dateCreated')
-      //      ->addModelTransformer($this->dateDataTransformer);
+        ->add('Save', SubmitType::class);
+
+
+        // important-----------
+        if(!in_array('ROLE_MANAGER',$this->user->getRoles())){
+            $builder->remove('wontFix');
+        }
+
     }
 
+
+
+
     public function OpenStatusId(): string{
-        $statusName = $this->statusRepository->findBy(['name' => 'open']);
+        $statusName = $this->statusRepository->findBy(['name' => 'wont_fix']);
         return $statusName[0]->getId();
     }
 
