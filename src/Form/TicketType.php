@@ -51,10 +51,10 @@ class TicketType extends AbstractType
 
         $builder
             ->add('title', TextType::class, [
-               // 'attr' => ['readonly' => true],
+                'disabled' => $options['is_edit']
             ])
             ->add('description', TextType::class, [
-               // 'attr' => ['readonly' => true],
+                'disabled' => $options['is_edit']
             ])
             ->add('priority', ChoiceType::class, [
                 'choices' => [
@@ -108,6 +108,7 @@ class TicketType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Ticket::class,
+            'is_edit' => false,
         ]);
     }
 }

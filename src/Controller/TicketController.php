@@ -53,18 +53,18 @@ class TicketController extends AbstractController
         if (in_array('ROLE_CUSTOMER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTicketsCreated(),
-                'title' => 'My tickets'
+                'title' => 'My Tickets'
             ]);
         } elseif (in_array('ROLE_FIRST_LINE_AGENT', $roles) || in_array('ROLE_SECOND_LINE_AGENT',
                 $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTickets(),
-                'title' => 'My tickets'
+                'title' => 'My Tickets'
             ]);
         } elseif (in_array('ROLE_MANAGER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
-                'title' => 'All tickets'
+                'title' => 'All Tickets'
             ]);
         }
     }
@@ -82,16 +82,16 @@ class TicketController extends AbstractController
             $tickets = $ticketRepository->findBy(['status' => $statusId,
                 'isEscalated' => true]);
 
-            return $this->render('ticket/index.html.twig', [
-                'tickets' => $tickets,
-                'title' => 'Escalated tickets'
-            ]);
+        return $this->render('ticket/index.html.twig', [
+            'tickets' => $tickets,
+            'title' => 'Escalated Tickets'
+        ]);
 
         }
 
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
-            'title' => 'Open tickets'
+            'title' => 'Open Tickets'
         ]);
     }
 
@@ -277,7 +277,9 @@ class TicketController extends AbstractController
     #[Route('/{id}/edit', name: 'ticket_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Ticket $ticket): Response
     {
-        $form = $this->createForm(TicketType::class, $ticket);
+        $form = $this->createForm(TicketType::class, $ticket, [
+            'is_edit' => true,
+        ]);
         $form->handleRequest($request);
 
         $statusName = $this->statusRepository->findBy(['name' => 'wont_fix']);
