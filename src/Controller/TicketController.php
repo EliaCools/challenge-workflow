@@ -7,6 +7,7 @@ use App\Entity\Status;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\CommentType;
+use App\Form\TicketAssignType;
 use App\Form\TicketCloseType;
 use App\Form\TicketEscalateType;
 use App\Form\TicketReopenType;
@@ -74,7 +75,8 @@ class TicketController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
 
         $statusId = $statusRepository->findBy(['name' => 'open']);
-        $tickets = $ticketRepository->findBy(['status' => $statusId]);
+        $tickets = $ticketRepository->findBy(['status' => $statusId,
+                'isEscalated' => false]);
 
         if ($this->isGranted('ROLE_SECOND_LINE_AGENT')) {
             $tickets = $ticketRepository->findBy(['status' => $statusId,
@@ -158,12 +160,19 @@ class TicketController extends AbstractController
             'action' => $this->urlGenerator->generate('ticket_close', [
                 'id' => $ticket->getId()])
         ]);
+        $ticketAssignForm = $this->createForm(TicketAssignType::class, null, [
+            'action' => $this->urlGenerator->generate('ticket_assign', [
+                'id' => $ticket->getId()])
+        ]);
+
+
         return $this->render('ticket/show.html.twig', [
             'ticket' => $ticket,
             'comment_form' => $form->createView(),
             'ticket_close' => $statusTicketForm->createView(),
             'ticket_reopen' => $ticketReopen->createView(),
-            'ticket_escalate' => $ticketEscalate->createView()
+            'ticket_escalate' => $ticketEscalate->createView(),
+            'ticket_assign' => $ticketAssignForm->createView()
         ]);
 
 //            return $this->render('ticket/show.html.twig', [
@@ -246,19 +255,22 @@ class TicketController extends AbstractController
     #[Route('ticket/{id}/escalateticket', name: 'ticket_escalate')]
     public function EscalateTicket(Ticket $ticket, Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_AGENT' || 'ROLE_MANAGER');
+        $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
 
         $formTicketEscalate = $this->createForm(TicketEscalateType::class);
         $formTicketEscalate->handleRequest($request);
 
+        $openStatus = $this->statusRepository->findOneBy(['name' =>'open']);
         if ($formTicketEscalate->isSubmitted() && $formTicketEscalate->isValid()) {
             $ticket->setIsEscalated(true);
+            $ticket->setAssignedTo(null);
+            $ticket->setStatus($openStatus);
             $this->getDoctrine()->getManager()->persist($ticket);
             $this->getDoctrine()->getManager()->flush();
 
             $this->addFlash('success', 'The ticket was sucessfully escalated.');
         }
-        return $this->redirectToRoute('ticket', ['id' => $ticket->getId()]);
+        return $this->redirectToRoute('ticket_index');
 
     }
 
@@ -317,6 +329,29 @@ class TicketController extends AbstractController
           ]);
 
       }
+
+
+    #[Route('ticket/{id}/assignTicket', name: 'ticket_assign')]
+    public function assingTicket(Ticket $ticket, Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
+
+        $formTicketEscalate = $this->createForm(TicketAssignType::class);
+        $formTicketEscalate->handleRequest($request);
+
+        $statusId = $this->statusRepository->findOneBy(['name'=>'in_progress']);
+
+        if ($formTicketEscalate->isSubmitted() && $formTicketEscalate->isValid()) {
+            $ticket->setAssignedTo($this->getUser());
+            $ticket->setStatus($statusId);
+            $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', 'The ticket was successfully assigned');
+        }
+        return $this->redirectToRoute('ticket', ['id' => $ticket->getId()]);
+
+    }
+
 
 
 }

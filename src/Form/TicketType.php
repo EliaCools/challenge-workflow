@@ -51,10 +51,10 @@ class TicketType extends AbstractType
 
         $builder
             ->add('title', TextType::class, [
-                'attr' => ['readonly' => true],
+               // 'attr' => ['readonly' => true],
             ])
             ->add('description', TextType::class, [
-                'attr' => ['readonly' => true],
+               // 'attr' => ['readonly' => true],
             ])
             ->add('priority', ChoiceType::class, [
                 'choices' => [

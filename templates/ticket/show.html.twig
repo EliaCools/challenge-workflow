@@ -16,13 +16,17 @@
             {% endif %}
         </div>
 
+        {% if ticket.assignedTo is null and (is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT'))   %}
+            {{ include('ticket/_ticket_assign.html.twig') }}
+        {% endif %}
+
         {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId or ticket.status.name == 'closed' %}
             {{ include('ticket/_ticket_reopen.html.twig') }}
         {% endif %}
         {% if is_granted('ROLE_EMPLOYEE' and ticket.status.name != 'closed') %}
             {{ include('ticket/_ticket_close.html.twig') }}
         {% endif %}
-        {% if is_granted('ROLE_EMPLOYEE' and ticket.isEscalated == 'No') %}
+        {% if is_granted('ROLE_EMPLOYEE') and ticket.isEscalated == false %}
             {{ include('ticket/_ticket_escalate.html.twig') }}
         {% endif %}
         <table class="table">
