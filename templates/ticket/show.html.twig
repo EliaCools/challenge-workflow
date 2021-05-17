@@ -10,8 +10,10 @@
             <a class="btn btn-primary m-1" href="{{ path('ticket_index') }}">Back to all
                 tickets</a>
 
+            {% if is_granted('ROLE_MANAGER') %}
             <a class="btn btn-primary m-1"
                href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
+            {% endif %}
         </div>
 
         {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId %}

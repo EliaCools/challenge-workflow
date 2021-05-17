@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\CommentType;
 use App\Form\TicketReopenType;
 use App\Form\TicketType;
+use App\Form\TicketWontFixType;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,10 +31,12 @@ class TicketController extends AbstractController
      * @var UrlGeneratorInterface
      * */
     private UrlGeneratorInterface $urlGenerator;
+    private $statusRepository;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->statusRepository = $statusRepository;
     }
 
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
@@ -93,6 +96,10 @@ class TicketController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
 
+        $statusName = $this->statusRepository->findBy(['name' => 'open']);
+
+
+
         $ticket = new Ticket();
         $form = $this->createForm(TicketType::class, $ticket);
         $form->handleRequest($request);
@@ -100,6 +107,7 @@ class TicketController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket->setDateCreated(new \DateTime());
             $ticket->setCreatedBy($this->getUser());
+            $ticket->setStatus($statusName[0]);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($ticket);
             $entityManager->flush();
@@ -116,6 +124,9 @@ class TicketController extends AbstractController
     #[Route('ticket/{id}', name: 'ticket')]
     public function show(Ticket $ticket, StatusRepository $statusRepository): Response
     {
+        $wontFixStatus = $statusRepository->findBy(['name'=> 'wont_fix']);
+        $wontFixId = $wontFixStatus[0]->getId();
+
         $form = $this->createForm(CommentType::class, null, [
             'action' => $this->urlGenerator->generate('ticket_add_comment', [
                 'id' => $ticket->getId()])
@@ -126,11 +137,13 @@ class TicketController extends AbstractController
                 'id' => $ticket->getId()])
         ]);
 
+
+
         return $this->render('ticket/show.html.twig', [
             'ticket' => $ticket,
             'comment_form' => $form->createView(),
-            'ticket_reopen_form' => $formReopen->createView()
-        ]);
+            'ticket_reopen_form' => $formReopen->createView(),
+         ]);
     }
 
     #[Route('ticket/{id}/addcomment', name: 'ticket_add_comment')]
@@ -199,8 +212,21 @@ class TicketController extends AbstractController
         $form = $this->createForm(TicketType::class, $ticket);
         $form->handleRequest($request);
 
+        $statusName = $this->statusRepository->findBy(['name' => 'wont_fix']);
+
+
+
         if ($form->isSubmitted() && $form->isValid()) {
+           if($form->get('wontFix')->getData() === true){
+               $ticket->setStatus($statusName[0]);
+           }
+
             $this->getDoctrine()->getManager()->flush();
+
+            if($form->get('checkbox')->getData() === true){
+             return  $this->redirectToRoute('ticket_wont_fix',['id' => $ticket->getId()]);
+            }
+
 
             return $this->redirectToRoute('ticket_index');
         }
@@ -222,7 +248,25 @@ class TicketController extends AbstractController
 
         return $this->redirectToRoute('ticket_index');
     }
+
+
+      #[Route('ticket/{id}/wontfix', name: 'ticket_wont_fix')]
+      public function wontFix(Ticket $ticket, Request $request): Response
+      {
+
+          $form = $this->createForm(CommentType::class);
+
+          return $this->render('comment/wontfixreason.html.twig', [
+              'form' => $form->createView()
+          ]);
+
+      }
+
+
 }
+
+
+
 
 // 3 templates. Index customer.twig, ...
 // if statements based on user role to render right twig
