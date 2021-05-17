@@ -17,6 +17,55 @@
         {% endblock %}
     </head>
     <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    {% if is_granted('ROLE_CUSTOMER') %}
+                    <a class="nav-link px-4" href="{{ path('ticket_index') }}">My Tickets <span class="sr-only">(current)</span></a>
+                    {% endif %}
+                </li>
+
+                <li class="nav-item active">
+                    {% if is_granted('ROLE_CUSTOMER') %}
+                        <a class="nav-link px-4" href="{{ path('open_tickets') }}">Open Tickets <span class="sr-only">(current)</span></a>
+                    {% endif %}
+                </li>
+
+                {% if is_granted('ROLE_MANAGER') %}
+                <li class="nav-item">
+                    <a class="nav-link px-4" href="{{ path('ticket_index') }}">All Tickets</a>
+                    {% endif %}
+                </li>
+                {% if is_granted('ROLE_MANAGER') %}
+                <li class="nav-item">
+                    <a class="nav-link px-4" href="{{ path('user_index') }}">Employees</a>
+                </li>
+                {% endif %}
+
+            </ul>
+
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href=" " id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    User
+                </a>
+                <div class="dropdown-menu form-inline" aria-labelledby="navbarDropdownMenuLink">
+                    {% if app.user %}
+                    <a class="dropdown-item" href="{{ path('user_show', {id:app.user.id})}}">My Profile</a>
+                    {% endif %}
+
+                    <a class="dropdown-item" href="{{ path('app_logout') }}">Log Out</a>
+
+                </div>
+            </div>
+            </div>
+        </div>
+    </nav>
         {% block body %}{% endblock %}
     {% block footer %}
         <footer class="bg-light text-center text-lg-start fixed-bottom mt-5">
