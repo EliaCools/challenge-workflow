@@ -79,14 +79,7 @@ class TicketType extends AbstractType
                 'class' => User::class,
                 'choices' => $this->userRepository->findByRole('ROLE_EMPLOYEE'),
             ])
-          //  ->add('createdBy', HiddenType::class,[
-          //      'data'=> $this->security->getUser(),
-//
-          // ])
-            ->add('status', HiddenType::class,[
-                'empty_data' => $this->OpenStatusId()
-            ])
-
+    
 
 
         ->add('Save', SubmitType::class);
