@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}won't fix reason{% endblock %}
+
+{% block body %}
+    <h1>Please declare why this ticket can't be resolved</h1>
+
+    {{ include('comment/_form.html.twig') }}
+
+    <a href="{{ path('ticket_index') }}">back to tickets</a>
+{% endblock %}
