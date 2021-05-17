@@ -265,7 +265,9 @@ class TicketController extends AbstractController
     #[Route('/{id}/edit', name: 'ticket_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Ticket $ticket): Response
     {
-        $form = $this->createForm(TicketType::class, $ticket);
+        $form = $this->createForm(TicketType::class, $ticket, [
+            'is_edit' => true,
+        ]);
         $form->handleRequest($request);
 
         $statusName = $this->statusRepository->findBy(['name' => 'wont_fix']);

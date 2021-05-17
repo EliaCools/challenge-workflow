@@ -1,87 +1,117 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {# Run `composer require symfony/webpack-encore-bundle`
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {# Run `composer require symfony/webpack-encore-bundle`
            and uncomment the following Encore helpers to start using Symfony UX #}
-        {% block stylesheets %}
-            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-            {#{{ encore_entry_link_tags('app') }}#}
-        {% endblock %}
+    {% block stylesheets %}
+        <link rel="stylesheet"
+              href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+              crossorigin="anonymous">
+        {# {{ encore_entry_link_tags('app') }} #}
+    {% endblock %}
 
-        {% block javascripts %}
-            {#{{ encore_entry_script_tags('app') }}#}
-        {% endblock %}
-    </head>
-    <body>
+    {% block javascripts %}
+        {# {{ encore_entry_script_tags('app') }} #}
+    {% endblock %}
+
+</head>
+<body>
+{% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-        <a class="navbar-brand" href="{{ path('homepage') }}">Home</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    {% if is_granted('ROLE_CUSTOMER') or is_granted
-                        ('ROLE_FIRST_LINE_AGENT') or is_granted
-                        ('ROLE_SECOND_LINE_AGENT') %}
-                    <a class="nav-link px-4" href="{{ path('ticket_index') }}">My Tickets <span class="sr-only">(current)</span></a>
-                    {% endif %}
-                </li>
+            <a class="navbar-brand" href="{{ path('homepage') }}">Home</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        {% if is_granted('ROLE_CUSTOMER') or is_granted
+                            ('ROLE_FIRST_LINE_AGENT') or is_granted
+                            ('ROLE_SECOND_LINE_AGENT') %}
+                            <a class="nav-link px-4" href="{{ path('ticket_index') }}">My
+                                Tickets <span class="sr-only">(current)</span></a>
+                        {% endif %}
+                    </li>
 
-                <li class="nav-item active">
-                    {% if is_granted
-                        ('ROLE_FIRST_LINE_AGENT') or is_granted
-                        ('ROLE_SECOND_LINE_AGENT') %}
-                        <a class="nav-link px-4" href="{{ path('open_tickets') }}">Open Tickets <span class="sr-only">(current)</span></a>
-                    {% endif %}
-                </li>
+                    <li class="nav-item active">
+                        {% if is_granted
+                            ('ROLE_FIRST_LINE_AGENT') or is_granted
+                            ('ROLE_SECOND_LINE_AGENT') %}
+                            <a class="nav-link px-4" href="{{ path('open_tickets') }}">Open
+                                Tickets <span class="sr-only">(current)</span></a>
+                        {% endif %}
+                    </li>
 
-                {% if is_granted('ROLE_MANAGER') %}
-                <li class="nav-item">
-                    <a class="nav-link px-4" href="{{ path('ticket_index') }}">All Tickets</a>
-                    {% endif %}
-                </li>
-                {% if is_granted('ROLE_MANAGER') %}
-                <li class="nav-item">
-                    <a class="nav-link px-4" href="{{ path('user_index') }}">Employees</a>
-                </li>
-                {% endif %}
-
-            </ul>
-
-            <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href=" " id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ app.user.lastName }} {{ app.user.firstName }}
-                </a>
-                <div class="dropdown-menu form-inline" aria-labelledby="navbarDropdownMenuLink">
-                    {% if app.user %}
-                    <a class="dropdown-item" href="{{ path('user_show', {id:app.user.id})}}">My Profile</a>
+                    {% if is_granted('ROLE_MANAGER') %}
+                    <li class="nav-item">
+                        <a class="nav-link px-4" href="{{ path('ticket_index') }}">All
+                            Tickets</a>
+                        {% endif %}
+                    </li>
+                    {% if is_granted('ROLE_MANAGER') %}
+                        <li class="nav-item">
+                            <a class="nav-link px-4"
+                               href="{{ path('user_index') }}">Employees</a>
+                        </li>
                     {% endif %}
 
-                    <a class="dropdown-item" href="{{ path('app_logout') }}">Log Out</a>
+                </ul>
 
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href=" "
+                       id="navbarDropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if app.user %}
+                        {{ app.user.lastName }} {{ app.user.firstName }}
+                        {% else %}
+                        User
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu form-inline"
+                         aria-labelledby="navbarDropdownMenuLink">
+                        {% if app.user %}
+                            <a class="dropdown-item"
+                               href="{{ path('user_show', {id:app.user.id}) }}">My
+                                Profile</a>
+                        {% endif %}
+
+                        <a class="dropdown-item" href="{{ path('app_logout') }}">Log
+                            Out</a>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     </nav>
-        {% block body %}{% endblock %}
-    {% block footer %}
-        <footer class="bg-light text-center text-lg-start fixed-bottom mt-5">
-            <!-- Copyright -->
-            <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-                © 2021 Copyright:
-                <a class="text-dark" href="https://becode.org/">BeCode</a>
-            </div>
-        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block body %}
+{% endblock %}
+
+{% block footer %}
+    <footer class="bg-light text-center text-lg-start fixed-bottom mt-5">
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2021 Copyright:
+            <a class="text-dark" href="https://becode.org/">BeCode</a>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+                integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+                integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+                crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+                integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+                crossorigin="anonymous"></script>
     </footer>
-    {% endblock %}
-    </body>
+{% endblock %}
+</body>
 </html>
