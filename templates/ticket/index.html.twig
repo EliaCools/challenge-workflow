@@ -1,16 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tickets{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block body %}
+    {% set currentPath = path(app.request.attributes.get('_route'),
+        app.request.attributes.get('_route_params')) %}
+
     <main class="container mb-5 pb-5">
         <h1 class="text-center m-5">{{ title }}</h1>
 
         <div class="mb-5 d-flex justify-content-end">
-            {% if is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT')  %}
-                <a class="btn btn-primary mr-2" href="{{ path('open_tickets') }}">All open
-                    tickets</a>
-                <a class="btn btn-primary" href="{{ path('ticket_index') }}">My Tickets</a>
+            {% if is_granted('ROLE_FIRST_LINE_AGENT') or is_granted
+                ('ROLE_SECOND_LINE_AGENT') %}
+                {% if 'ticket/opentickets' not in currentPath %}
+                    <a class="btn btn-primary mr-2" href="{{ path('open_tickets') }}">All
+                        open
+                        tickets</a>
+                    {% else %}
+                    <a class="btn btn-primary" href="{{ path('ticket_index') }}">My
+                        Tickets</a>
+                {% endif %}
             {% elseif is_granted('ROLE_CUSTOMER') %}
                 <a class="btn btn-primary self-align-right"
                    href="{{ path('ticket_new') }}">Create

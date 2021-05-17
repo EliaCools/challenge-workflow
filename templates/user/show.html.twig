@@ -10,15 +10,14 @@
                 <a class="btn btn-primary m-1" href="{{ path('user_index') }}">Back to all
                     employees
                 </a>
+                <a class="btn btn-primary m-1"
+                   href="{{ path('user_edit', {'id': user.id}) }}">Edit</a>
             {% else %}
                 <a class="btn btn-primary m-1" href="{{ path('ticket_index') }}">
-                    my tickets
+                    My Tickets
                 </a>
 
             {% endif %}
-
-            <a class="btn btn-primary m-1"
-               href="{{ path('user_edit', {'id': user.id}) }}">Edit</a>
         </div>
 
         <table class="table">
@@ -59,8 +58,6 @@
             </tr>
             </tbody>
         </table>
-
-        {{ include('user/_delete_form.html.twig') }}
 
         {% if 'ROLE_FIRST_LINE_AGENT' in user.roles or 'ROLE_SECOND_LINE_AGENT' in
             user.roles %}

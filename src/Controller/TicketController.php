@@ -47,18 +47,18 @@ class TicketController extends AbstractController
         if (in_array('ROLE_CUSTOMER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTicketsCreated(),
-                'title' => 'My tickets'
+                'title' => 'My Tickets'
             ]);
         } elseif (in_array('ROLE_FIRST_LINE_AGENT', $roles) || in_array('ROLE_SECOND_LINE_AGENT',
                 $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTickets(),
-                'title' => 'My tickets'
+                'title' => 'My Tickets'
             ]);
         } elseif (in_array('ROLE_MANAGER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
-                'title' => 'All tickets'
+                'title' => 'All Tickets'
             ]);
         }
     }
@@ -77,14 +77,14 @@ class TicketController extends AbstractController
 
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
-            'title' => 'Escalated tickets'
+            'title' => 'Escalated Tickets'
         ]);
 
         }
 
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
-            'title' => 'Open tickets'
+            'title' => 'Open Tickets'
         ]);
     }
 

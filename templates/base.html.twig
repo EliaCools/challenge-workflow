@@ -19,20 +19,24 @@
     <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="{{ path('homepage') }}">Home</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    {% if is_granted('ROLE_CUSTOMER') %}
+                    {% if is_granted('ROLE_CUSTOMER') or is_granted
+                        ('ROLE_FIRST_LINE_AGENT') or is_granted
+                        ('ROLE_SECOND_LINE_AGENT') %}
                     <a class="nav-link px-4" href="{{ path('ticket_index') }}">My Tickets <span class="sr-only">(current)</span></a>
                     {% endif %}
                 </li>
 
                 <li class="nav-item active">
-                    {% if is_granted('ROLE_CUSTOMER') %}
+                    {% if is_granted
+                        ('ROLE_FIRST_LINE_AGENT') or is_granted
+                        ('ROLE_SECOND_LINE_AGENT') %}
                         <a class="nav-link px-4" href="{{ path('open_tickets') }}">Open Tickets <span class="sr-only">(current)</span></a>
                     {% endif %}
                 </li>
@@ -52,7 +56,7 @@
 
             <div class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href=" " id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    User
+                    {{ app.user.lastName }} {{ app.user.firstName }}
                 </a>
                 <div class="dropdown-menu form-inline" aria-labelledby="navbarDropdownMenuLink">
                     {% if app.user %}

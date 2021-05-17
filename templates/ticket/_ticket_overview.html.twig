@@ -17,7 +17,7 @@
             {% if is_granted("ROLE_EMPLOYEE") %}
             <td>{{ ticket.priority }}</td>
             {% endif %}
-            <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
+            <td>{{ ticket.dateCreated ? ticket.dateCreated|date('d-m-Y H:i:s') : '' }}</td>
             <td>{{ ticket.status.name }}</td>
             <td>
                 <a href="{{ path('ticket', {'id': ticket.id}) }}">Details</a>

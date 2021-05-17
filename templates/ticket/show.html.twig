@@ -38,16 +38,18 @@
                 <td>{{ ticket.priority }}</td>
             </tr>
             <tr>
-                <th>IsEscalated</th>
+                <th>Escalated</th>
                 <td>{{ ticket.isEscalated ? 'Yes' : 'No' }}</td>
             </tr>
             <tr>
-                <th>DateCreated</th>
-                <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
+                <th>Created on</th>
+                <td>{{ ticket.dateCreated ? ticket.dateCreated|date('d-m-Y H:i:s') : ''
+                    }}</td>
             </tr>
             <tr>
-                <th>DateClosed</th>
-                <td>{{ ticket.dateClosed ? ticket.dateClosed|date('Y-m-d H:i:s') : '' }}</td>
+                <th>Closed on</th>
+                <td>{{ ticket.dateClosed ? ticket.dateClosed|date('d-m-Y H:i:s') : ''
+                    }}</td>
             </tr>
             </tbody>
         </table>
