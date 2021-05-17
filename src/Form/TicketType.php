@@ -38,6 +38,7 @@ class TicketType extends AbstractType
         $this->security = $security;
         $this->statusTransformer = $statusTransformer;
         $this->statusRepository = $statusRepository;
+        $this->userRepository = $userRepository;
     }
 
 
@@ -45,8 +46,12 @@ class TicketType extends AbstractType
     {
 
         $builder
-            ->add('title')
-            ->add('description')
+            ->add('title', TextType::class, [
+                'attr' => ['readonly' => true],
+            ])
+            ->add('description', TextType::class, [
+                'attr' => ['readonly' => true],
+            ])
             ->add('priority', ChoiceType::class, [
                 'choices' => [
                     'low' => 'low',
@@ -59,8 +64,10 @@ class TicketType extends AbstractType
             ])
 
             ->add('assignedTo', EntityType::class, [
+                'placeholder' => ' ',
+                'required' => 'false',
                 'class' => User::class,
-                'choices' => $userRepository->findByRole('ROLE_EMPLOYEE'),
+                'choices' => $this->userRepository->findByRole('ROLE_EMPLOYEE'),
             ])
           //  ->add('createdBy', HiddenType::class,[
           //      'data'=> $this->security->getUser(),
