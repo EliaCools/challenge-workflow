@@ -10,11 +10,16 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserType extends AbstractType
 {
+    private $user;
+    public function __construct(Security $security){
+        $this->user = $security->getUser();
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -35,6 +40,10 @@ class UserType extends AbstractType
             ])
             ->add('firstName')
             ->add('lastName');
+
+        if(!in_array('ROLE_MANAGER',$this->user->getRoles())){
+            $builder->remove('roles');
+        }
 
     }
 

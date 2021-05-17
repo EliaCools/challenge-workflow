@@ -2,7 +2,9 @@
     <thead>
     <tr>
         <th>Title</th>
-        <th>Priority</th>
+        {% if is_granted("ROLE_EMPLOYEE") %}
+         <th>Priority</th>
+        {% endif %}
         <th>Created on</th>
         <th>Status</th>
         <th>Go to</th>
@@ -12,7 +14,9 @@
     {% for ticket in tickets %}
         <tr>
             <td>{{ ticket.title }}</td>
+            {% if is_granted("ROLE_EMPLOYEE") %}
             <td>{{ ticket.priority }}</td>
+            {% endif %}
             <td>{{ ticket.dateCreated ? ticket.dateCreated|date('Y-m-d H:i:s') : '' }}</td>
             <td>{{ ticket.status.name }}</td>
             <td>

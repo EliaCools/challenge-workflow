@@ -35,14 +35,17 @@ class UserController extends AbstractController
     #[Route('/', name: 'user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_MANAGER');
         return $this->render('user/index.html.twig', [
             'users' => $userRepository->findByRole('ROLE_EMPLOYEE')
         ]);
     }
 
     #[Route('/new', name: 'user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserPasswordEncoderInterface $passwordEncoder,MailerInterface $mailer): Response
+    public function new(Request $request, UserPasswordEncoderInterface $passwordEncoder, MailerInterface $mailer): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_MANAGER');
+
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
@@ -55,7 +58,7 @@ class UserController extends AbstractController
                 )
             );
 
-            $roles[] =  'ROLE_EMPLOYEE';
+            $roles[] = 'ROLE_EMPLOYEE';
             $roles [] = $form->get('roles')->getData();
 
             $user->setRoles($roles);
@@ -70,7 +73,7 @@ class UserController extends AbstractController
                 $mailer
             );
 
-         //   return $this->redirectToRoute('user_index');
+            //   return $this->redirectToRoute('user_index');
         }
 
         return $this->render('user/new.html.twig', [
@@ -80,8 +83,13 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'user_show', methods: ['GET'])]
-    public function show(User $user): Response
+    public function show(User $user, Request $request): Response
     {
+
+        if ($request->getPathInfo() !== '/user/' . $this->getUser()->getId() . '') {
+            $this->denyAccessUnlessGranted('ROLE_MANAGER');
+        }
+
         return $this->render('user/show.html.twig', [
             'user' => $user,
         ]);
@@ -90,13 +98,31 @@ class UserController extends AbstractController
     #[Route('/{id}/edit', name: 'user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user): Response
     {
+        if ($request->getPathInfo() !== '/user/' . $this->getUser()->getId() . '/edit') {
+            $this->denyAccessUnlessGranted('ROLE_MANAGER');
+        }
+
+
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            if($this->isGranted('ROLE_MANAGER')){
+                $roles[] = 'ROLE_EMPLOYEE';
+                $roles [] = $form->get('roles')->getData();
+
+                $user->setRoles($roles);
+
+            }
+
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('user_index');
+            if ($this->isGranted('ROLE_MANAGER')) {
+                return $this->redirectToRoute('user_index');
+            }
+            return $this->redirectToRoute('user_show', ['id' => $this->getUser()->getId()]);
+
         }
 
         return $this->render('user/edit.html.twig', [
@@ -108,13 +134,16 @@ class UserController extends AbstractController
     #[Route('/{id}', name: 'user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($user);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('user_index');
+        if ($this->isGranted('ROLE_MANAGER')) {
+            return $this->redirectToRoute('user_index');
+        }
+        return $this->redirectToRoute('homepage');
     }
 
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse
@@ -143,9 +172,8 @@ class UserController extends AbstractController
             ->htmlTemplate('reset_password/agentSetPassMail.html.twig')
             ->context([
                 'resetToken' => $resetToken,
-                'tokenLifetime'=>$this->resetPasswordHelper->getTokenLifetime(),
-            ])
-        ;
+                'tokenLifetime' => $this->resetPasswordHelper->getTokenLifetime(),
+            ]);
 
         $mailer->send($email);
 
