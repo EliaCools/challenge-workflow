@@ -9,7 +9,9 @@ use App\Entity\User;
 
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use App\Repository\UserRepository;
 use MongoDB\BSON\Timestamp;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -26,9 +28,11 @@ class TicketType extends AbstractType
     private $security;
     private $statusTransformer;
     private $statusRepository;
+    private $userRepository;
 
     public function __construct(CreatedByDataTransformer $transformer, Security $security,
-                                StatusDataTransformer $statusTransformer, StatusRepository $statusRepository)
+                                StatusDataTransformer $statusTransformer,
+                                StatusRepository $statusRepository, UserRepository $userRepository)
     {
         $this->transformer = $transformer;
         $this->security = $security;
@@ -43,14 +47,21 @@ class TicketType extends AbstractType
         $builder
             ->add('title')
             ->add('description')
-            ->add('priority', HiddenType::class,[
-                'data' => 'unspecified'
+            ->add('priority', ChoiceType::class, [
+                'choices' => [
+                    'low' => 'low',
+                    'medium' => 'medium',
+                    'high' => 'high'
+                ]
             ])
             ->add('isEscalated', HiddenType::class,[
                 'data' => 0
             ])
 
-           // ->add('assignedTo')
+            ->add('assignedTo', EntityType::class, [
+                'class' => User::class,
+                'choices' => $userRepository->findByRole('ROLE_EMPLOYEE'),
+            ])
           //  ->add('createdBy', HiddenType::class,[
           //      'data'=> $this->security->getUser(),
 //
