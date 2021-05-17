@@ -7,7 +7,8 @@ use App\Entity\Ticket;
 use App\Entity\User;
 
 
-
+use App\Repository\StatusRepository;
+use App\Repository\TicketRepository;
 use MongoDB\BSON\Timestamp;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -24,13 +25,15 @@ class TicketType extends AbstractType
     private $transformer;
     private $security;
     private $statusTransformer;
+    private $statusRepository;
 
     public function __construct(CreatedByDataTransformer $transformer, Security $security,
-                                StatusDataTransformer $statusTransformer)
+                                StatusDataTransformer $statusTransformer, StatusRepository $statusRepository)
     {
         $this->transformer = $transformer;
         $this->security = $security;
         $this->statusTransformer = $statusTransformer;
+        $this->statusRepository = $statusRepository;
     }
 
 
@@ -53,7 +56,7 @@ class TicketType extends AbstractType
 //
           // ])
             ->add('status', HiddenType::class,[
-                'empty_data' => '1'
+                'empty_data' => $this->OpenStatusId()
             ])
 
          ->add('Save', SubmitType::class);
@@ -64,6 +67,11 @@ class TicketType extends AbstractType
             ->addModelTransformer($this->statusTransformer);
       //  $builder->get('dateCreated')
       //      ->addModelTransformer($this->dateDataTransformer);
+    }
+
+    public function OpenStatusId(): string{
+        $statusName = $this->statusRepository->findBy(['name' => 'open']);
+        return $statusName[0]->getId();
     }
 
 

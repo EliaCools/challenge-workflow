@@ -47,15 +47,18 @@ class TicketController extends AbstractController
         if (in_array('ROLE_CUSTOMER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTicketsCreated(),
+                'title' => 'My tickets'
             ]);
         } elseif (in_array('ROLE_FIRST_LINE_AGENT', $roles) || in_array('ROLE_SECOND_LINE_AGENT',
                 $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $user->getTickets(),
+                'title' => 'My tickets'
             ]);
         } elseif (in_array('ROLE_MANAGER', $roles)) {
             return $this->render('ticket/index.html.twig', [
                 'tickets' => $ticketRepository->findAll(),
+                'title' => 'All tickets'
             ]);
         }
     }
@@ -68,14 +71,28 @@ class TicketController extends AbstractController
         $statusId = $statusRepository->findBy(['name' => 'open']);
         $tickets = $ticketRepository->findBy(['status' => $statusId]);
 
+        if($this->isGranted('ROLE_SECOND_LINE_AGENT')){
+            $tickets = $ticketRepository->findBy(['status' => $statusId,
+                                                   'isEscalated' => true ]);
+
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
+            'title' => 'Escalated tickets'
+        ]);
+
+        }
+
+        return $this->render('ticket/index.html.twig', [
+            'tickets' => $tickets,
+            'title' => 'Open tickets'
         ]);
     }
 
     #[Route('/new', name: 'ticket_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
+
         $ticket = new Ticket();
         $form = $this->createForm(TicketType::class, $ticket);
         $form->handleRequest($request);
