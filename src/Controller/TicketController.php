@@ -32,10 +32,12 @@ class TicketController extends AbstractController
      * @var UrlGeneratorInterface
      * */
     private UrlGeneratorInterface $urlGenerator;
+    private StatusRepository $statusRepository;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator, StatusRepository $statusRepository)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->statusRepository = $statusRepository;
     }
 
     #[Route('/', name: 'ticket_index', methods: ['GET'])]
@@ -73,14 +75,14 @@ class TicketController extends AbstractController
         $statusId = $statusRepository->findBy(['name' => 'open']);
         $tickets = $ticketRepository->findBy(['status' => $statusId]);
 
-        if($this->isGranted('ROLE_SECOND_LINE_AGENT')){
+        if ($this->isGranted('ROLE_SECOND_LINE_AGENT')) {
             $tickets = $ticketRepository->findBy(['status' => $statusId,
-                                                   'isEscalated' => true ]);
+                'isEscalated' => true]);
 
-        return $this->render('ticket/index.html.twig', [
-            'tickets' => $tickets,
-            'title' => 'Escalated tickets'
-        ]);
+            return $this->render('ticket/index.html.twig', [
+                'tickets' => $tickets,
+                'title' => 'Escalated tickets'
+            ]);
 
         }
 
@@ -116,35 +118,49 @@ class TicketController extends AbstractController
     }
 
     #[Route('ticket/{id}', name: 'ticket')]
-    public function show(Ticket $ticket, StatusRepository $statusRepository): Response
+    public function show(Ticket $ticket, StatusRepository $statusRepository, TicketRepository $ticketRepository): Response
     {
         $user = $this->getUser();
         $roles = $user->getRoles();
 
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $statusId = $statusRepository->findBy(['name' => 'closed']);
+        $tickets = $ticketRepository->findBy(['status' => $statusId]);
+
         $form = $this->createForm(CommentType::class, null, [
             'action' => $this->urlGenerator->generate('ticket_add_comment', [
                 'roles' => $this->getUser()->getRoles(),
                 'id' => $ticket->getId()])
-
         ]);
 
-        if ($ticket->getStatus()->getName() !== 'open') {
-            $formReopen = $this->createForm(TicketReopenType::class, null, [
-                'action' => $this->urlGenerator->generate('ticket_reopen', [
-                    'id' => $ticket->getId()])
-            ]);
-            return $this->render('ticket/show.html.twig', [
-                'ticket' => $ticket,
-                'comment_form' => $form->createView(),
-                'ticket_reopen_form' => $formReopen->createView()
-            ]);
-        }
+        $ticketEscalate = $this->createForm(TicketEscalateType::class, null, [
+            'action' => $this->urlGenerator->generate('ticket_escalate', [
+                'id' => $ticket->getId()])
+        ]);
+
+        $ticketReopen = $this->createForm(TicketReopenType::class, null, [
+            'action' => $this->urlGenerator->generate('ticket_reopen', [
+                'id' => $ticket->getId()])
+        ]);
+
+        $statusTicketForm = $this->createForm(TicketCloseType::class, null, [
+            'action' => $this->urlGenerator->generate('ticket_close', [
+                'id' => $ticket->getId()])
+        ]);
         return $this->render('ticket/show.html.twig', [
             'ticket' => $ticket,
-            'comment_form' => $form->createView()
+            'comment_form' => $form->createView(),
+            'ticket_close' => $statusTicketForm->createView(),
+            'ticket_reopen' => $ticketReopen->createView(),
+            'ticket_escalate' => $ticketEscalate->createView()
         ]);
+
+//            return $this->render('ticket/show.html.twig', [
+//                'ticket' => $ticket,
+//                'comment_form' => $form->createView()
+//            ]);
+
 
     }
 
@@ -180,12 +196,13 @@ class TicketController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
 
-        $status = new Status();
+        $status = $this->statusRepository->findOneBy(['name' => 'open']);
+
         $formStatus = $this->createForm(TicketReopenType::class);
         $formStatus->handleRequest($request);
 
         if ($formStatus->isSubmitted() && $formStatus->isValid()) {
-            $status->setName('open');
+            $ticket->setStatus($status);
             $this->getDoctrine()->getManager()->persist($status);
             $this->getDoctrine()->getManager()->flush();
 
@@ -200,16 +217,17 @@ class TicketController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_EMPLOYEE');
 
-        $status = new Status();
+        $status = $this->statusRepository->findOneBy(['name' => 'closed']);
+
         $formStatus = $this->createForm(TicketCloseType::class);
         $formStatus->handleRequest($request);
 
         if ($formStatus->isSubmitted() && $formStatus->isValid()) {
-            $status->setName('closed');
+            $ticket->setStatus($status);
             $this->getDoctrine()->getManager()->persist($status);
             $this->getDoctrine()->getManager()->flush();
 
-            $this->addFlash('success', 'The ticket was sucessfully closed.');
+            $this->addFlash('success', 'The ticket was successfully closed.');
         }
         return $this->redirectToRoute('ticket', ['id' => $ticket->getId()]);
 
