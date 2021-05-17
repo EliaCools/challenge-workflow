@@ -407,7 +407,6 @@ class TicketController extends AbstractController
         return $this->redirectToRoute('ticket_index');
 
     }
-
 }
 
 
