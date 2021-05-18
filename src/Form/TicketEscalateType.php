@@ -21,7 +21,8 @@ class TicketEscalateType extends AbstractType
         $builder
             ->setMethod('POST')
             ->add('Escalate', SubmitType::class, [
-                'label' => 'Escalate Ticket'
+                'label' => 'Escalate Ticket',
+                'attr' => ['class' => 'btn btn-primary'],
             ]);
     }
 

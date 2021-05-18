@@ -24,7 +24,8 @@ class TicketReopenType extends AbstractType
         $builder
             ->setMethod('POST')
             ->add('Reopen', SubmitType::class, [
-                'label' => 'Reopen ticket'
+                'label' => 'Reopen ticket',
+                'attr' => ['class' => 'btn btn-primary'],
             ]);
 
     }

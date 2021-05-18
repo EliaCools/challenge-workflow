@@ -14,21 +14,32 @@
                 <a class="btn btn-primary m-1"
                    href="{{ path('ticket_edit', {'id': ticket.id}) }}">Edit</a>
             {% endif %}
+
+            {% if ticket.assignedTo is null and (is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT')) %}
+                <div class="m-1">
+                    {{ include('ticket/_ticket_assign.html.twig') }}
+                </div>
+            {% endif %}
+
+            {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId and ticket.status.name == 'closed' %}
+
+                <div class="m-1">
+                    {{ include('ticket/_ticket_reopen.html.twig') }}
+                </div>
+            {% endif %}
+            {% if is_granted('ROLE_EMPLOYEE') and ticket.status.name != 'closed' and ticket.assignedTo is not null %}
+                <div class="m-1">
+                    {{ include('ticket/_ticket_close.html.twig') }}
+                </div>
+            {% endif %}
+            {% if is_granted('ROLE_EMPLOYEE') and ticket.isEscalated == false %}
+                <div class="m-1">
+                    {{ include('ticket/_ticket_escalate.html.twig') }}
+                </div>
+            {% endif %}
         </div>
 
-        {% if ticket.assignedTo is null and (is_granted('ROLE_FIRST_LINE_AGENT') or is_granted('ROLE_SECOND_LINE_AGENT')) %}
-            {{ include('ticket/_ticket_assign.html.twig') }}
-        {% endif %}
 
-        {% if is_granted('ROLE_CUSTOMER') and ticket.status.id != wontFixId and ticket.status.name == 'closed' %}
-            {{ include('ticket/_ticket_reopen.html.twig') }}
-        {% endif %}
-        {% if is_granted('ROLE_EMPLOYEE') and ticket.status.name != 'closed' and ticket.assignedTo is not null %}
-            {{ include('ticket/_ticket_close.html.twig') }}
-        {% endif %}
-        {% if is_granted('ROLE_EMPLOYEE') and ticket.isEscalated == false %}
-            {{ include('ticket/_ticket_escalate.html.twig') }}
-        {% endif %}
         <table class="table">
             <tbody>
             <tr>
@@ -60,10 +71,10 @@
                 <td>{{ ticket.dateCreated ? ticket.dateCreated|date('d-m-Y H:i:s') : '' }}</td>
             </tr>
             {% if ticket.dateClosed is not null %}
-            <tr>
-                <th>Closed on</th>
-                <td>{{ ticket.dateClosed ? ticket.dateClosed|date('d-m-Y H:i:s') : '' }}</td>
-            </tr>
+                <tr>
+                    <th>Closed on</th>
+                    <td>{{ ticket.dateClosed ? ticket.dateClosed|date('d-m-Y H:i:s') : '' }}</td>
+                </tr>
             {% endif %}
             </tbody>
         </table>

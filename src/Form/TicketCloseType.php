@@ -21,7 +21,8 @@ class TicketCloseType extends AbstractType
         $builder
             ->setMethod('POST')
             ->add('close', SubmitType::class, [
-                'label' => 'Close Ticket'
+                'label' => 'Close Ticket',
+                'attr' => ['class' => 'btn btn-primary'],
             ]);
     }
 

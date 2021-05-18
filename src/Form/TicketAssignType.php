@@ -21,7 +21,8 @@ class TicketAssignType extends AbstractType
         $builder
             ->setMethod('POST')
             ->add('assign', SubmitType::class, [
-                'label' => 'Assign ticket'
+                'label' => 'Assign ticket',
+                'attr' => ['class' => 'btn btn-primary'],
             ]);
     }
 
